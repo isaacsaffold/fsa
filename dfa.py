@@ -1,3 +1,5 @@
+"""Contains a DFA implementation."""
+
 from itertools import count
 from collections import deque
 from enum import IntEnum
