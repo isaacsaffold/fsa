@@ -115,7 +115,7 @@ class DFA:
         # Iterables may be lazily evaluated, hence unusual idioms for
         # initializing locals below.
         state_indices = dict(zip(states, count()))
-        alphabet = tuple(alphabet)
+        alphabet = frozenset(alphabet)
         sym_indices = dict(zip(alphabet, count()))
         trans_matrix = [[0] * len(alphabet) for i in range(len(state_indices))]
         for orig, sym, dest in transitions:
