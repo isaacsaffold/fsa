@@ -25,53 +25,53 @@ class _BasicRegex:
         return cls(cls.EMPTY_STRING)
 
     @staticmethod
-    def possibly_parenthesized(regex, op):
-        if op < regex.loosest_binding:
-            return '(' + regex.string + ')'
+    def _possibly_parenthesized(regex, op):
+        if op < regex._loosest_binding:
+            return '(' + regex._string + ')'
         else:
-            return regex.string
+            return regex._string
 
     def __init__(self, symbol):
-        self.string = symbol
-        self.loosest_binding = _Operation.NO_OP
+        self._string = symbol
+        self._loosest_binding = _Operation.NO_OP
 
     def star(self):
-        if self.string == __class__.EMPTY_LANGUAGE:
-            self.string = __class__.EMPTY_STRING
-        elif self.string != __class__.EMPTY_STRING:
-            s = __class__.possibly_parenthesized(self, _Operation.STAR)
-            self.string = s + '*'
-            self.loosest_binding = _Operation.STAR
+        if self._string == __class__.EMPTY_LANGUAGE:
+            self._string = __class__.EMPTY_STRING
+        elif self._string != __class__.EMPTY_STRING:
+            s = __class__._possibly_parenthesized(self, _Operation.STAR)
+            self._string = s + '*'
+            self._loosest_binding = _Operation.STAR
         return self
 
     def concat(self, other):
-        if other.string == __class__.EMPTY_LANGUAGE:
-            self.string = __class__.EMPTY_LANGUAGE
-            self.loosest_binding = _Operation.NO_OP
-        elif self.string == __class__.EMPTY_STRING:
-            self.string = other.string
-            self.loosest_binding = other.loosest_binding
-        elif (self.string != __class__.EMPTY_LANGUAGE and
-              other.string != __class__.EMPTY_STRING):
-            a = __class__.possibly_parenthesized(self, _Operation.CONCAT)
-            b = __class__.possibly_parenthesized(other, _Operation.CONCAT)
-            self.string = a + b
-            self.loosest_binding = _Operation.CONCAT
+        if other._string == __class__.EMPTY_LANGUAGE:
+            self._string = __class__.EMPTY_LANGUAGE
+            self._loosest_binding = _Operation.NO_OP
+        elif self._string == __class__.EMPTY_STRING:
+            self._string = other._string
+            self._loosest_binding = other._loosest_binding
+        elif (self._string != __class__.EMPTY_LANGUAGE and
+              other._string != __class__.EMPTY_STRING):
+            a = __class__._possibly_parenthesized(self, _Operation.CONCAT)
+            b = __class__._possibly_parenthesized(other, _Operation.CONCAT)
+            self._string = a + b
+            self._loosest_binding = _Operation.CONCAT
         return self
         
     def union(self, other):
-        if self.string == __class__.EMPTY_LANGUAGE:
-            self.string = other.string
-            self.loosest_binding = other.loosest_binding
-        elif other.string != __class__.EMPTY_LANGUAGE:
-            a = __class__.possibly_parenthesized(self, _Operation.UNION)
-            b = __class__.possibly_parenthesized(other, _Operation.UNION)
-            self.string = a + '|' + b
-            self.loosest_binding = _Operation.UNION
+        if self._string == __class__.EMPTY_LANGUAGE:
+            self._string = other._string
+            self._loosest_binding = other._loosest_binding
+        elif other._string != __class__.EMPTY_LANGUAGE:
+            a = __class__._possibly_parenthesized(self, _Operation.UNION)
+            b = __class__._possibly_parenthesized(other, _Operation.UNION)
+            self._string = a + '|' + b
+            self._loosest_binding = _Operation.UNION
         return self
 
     def __repr__(self):
-        return self.string
+        return self._string
 
 class DFA:
     """A deterministic finite automaton. Given a string as input,
