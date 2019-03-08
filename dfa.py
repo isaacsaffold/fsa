@@ -84,8 +84,8 @@ class DFA:
     arbitary hashable type.
 
     `alphabet` - an iterable containing the symbols of the alphabet over
-    which the DFA's language is defined. Each symbol must be of string
-    type.
+    which the DFA's language is defined. Each symbol must be a single
+    character.
 
     In the common case that every symbol in the alphabet can be
     represented by a single character, a string containing each of these
@@ -109,13 +109,47 @@ class DFA:
     `optimize` - if `True`, removes all unreachable states
     """
 
+    @staticmethod
+    def _remove_unreachables(dfa):
+        #simply traverses the state graph
+        reachable = set()
+        queue = deque([dfa._initial])
+        while queue:
+            orig = queue.pop()
+            reachable.add(orig)
+            for dest in dfa._trans_matrix[orig]:
+                if dest not in reachable:
+                    queue.append(dest)
+        dfa._update_states(reachable)
+
+    @staticmethod
+    def _to_regex(dfa, indices_to_syms):
+        start, accept = len(dfa._trans_matrix), len(dfa._trans_matrix) + 1
+        reverse_edges = [set() for i in range(accept)]
+        reverse_edges[0].add(start)
+        reverse_edges.append(dfa._accepting)
+        gnfa_func = []
+        for i in range(len(dfa._trans_matrix)):
+            to_dict = {}
+            for j in range(len(dfa._trans_matrix[i])):
+                to = dfa._trans_matrix[i][j]
+                regex = to_dict.setdefault(to, _BasicRegex.empty_language())
+                regex.union(_BasicRegex(dfa._indices_to_syms[j]))
+            if i in dfa._accepting:
+                to_dict[accept] = _BasicRegex.empty_string()
+            gnfa_func.append(to_dict)
+        gnfa_func.extend([{dfa._initial: _BasicRegex.empty_string()}, {}])
+        for i in range(len(dfa._trans_matrix)):
+            # TODO
+            pass
+
     def __init__(self, states, alphabet, transitions, initial, accepting,
                  optimize=True):
         """Initialize self. See help(type(self)) for accurate signature."""
         # Iterables may be lazily evaluated, hence unusual idioms for
         # initializing locals below.
         state_indices = dict(zip(states, count()))
-        alphabet = frozenset(alphabet)
+        alphabet = tuple(alphabet)
         sym_indices = dict(zip(alphabet, count()))
         trans_matrix = [[0] * len(alphabet) for i in range(len(state_indices))]
         for orig, sym, dest in transitions:
@@ -123,9 +157,8 @@ class DFA:
             trans_matrix[i][j] = state_indices[dest]
 
         # only stored as convenience to user
-        self._alphabet = alphabet
-        # maps symbols in alphabet to integers
-        self._sym_indices = sym_indices
+        self._alphabet = frozenset(alphabet)
+        self._syms_to_indices = sym_indices
         # Transitions are stored in a matrix, with one row per state and
         # one column per symbol in the alphabet.
         self._trans_matrix = trans_matrix
@@ -133,7 +166,8 @@ class DFA:
         self._accepting = set(state_indices[q] for q in accepting)
 
         if optimize:
-            self._remove_unreachables()
+            __class__._remove_unreachables(self)
+        self._regex = __class__._to_regex(self, alphabet)
 
     def _update_states(self, new_states):
         """Reconfigures the DFA when its set of states is altered."""
@@ -148,21 +182,6 @@ class DFA:
         self._trans_matrix = new_matrix
         self._accepting = new_accepting
                 
-    def _remove_unreachables(self):
-        # simply traverses the state graph
-        reachable = set()
-        queue = deque([self._initial])
-        while queue:
-            orig = queue.pop()
-            reachable.add(orig)
-            for dest in self._trans_matrix[orig]:
-                if dest not in reachable:
-                    queue.append(dest)
-        self._update_states(reachable)
-
-    def _to_regex(self):
-        pass
-
     @property
     def alphabet(self):
         return self._alphabet
@@ -174,7 +193,7 @@ class DFA:
         state = self._initial
         try:
             for sym in s:
-                state = self._trans_matrix[state][self._sym_indices[sym]]
+                state = self._trans_matrix[state][self._syms_to_indices[sym]]
         except KeyError:
             msg = f"'{sym}' is not contained in this DFA's alphabet."
             raise ValueError(msg) from None
@@ -182,5 +201,4 @@ class DFA:
 
     def __repr__(self):
         """Return repr(self)."""
-        self._regex = getattr(self, "_regex", self._to_regex())
         return self._regex
