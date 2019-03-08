@@ -80,8 +80,8 @@ class DFA:
 
     constructor arguments
     ---------------------
-    `states` - an iterable of states, each of which can be of arbitrary
-    hashable type.
+    `states` - a nonempty iterable of states, each of which can be of
+    arbitary hashable type.
 
     `alphabet` - an iterable containing the symbols of the alphabet over
     which the DFA's language is defined. Each symbol must be of string
