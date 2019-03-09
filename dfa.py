@@ -110,36 +110,36 @@ class DFA:
     """
 
     @staticmethod
-    def _remove_unreachables(dfa):
+    def _remove_unreachables(auto):
         #simply traverses the state graph
         reachable = set()
-        queue = deque([dfa._initial])
+        queue = deque([auto._initial])
         while queue:
             orig = queue.pop()
             reachable.add(orig)
-            for dest in dfa._trans_matrix[orig]:
+            for dest in auto._trans_matrix[orig]:
                 if dest not in reachable:
                     queue.append(dest)
-        dfa._update_states(reachable)
+        auto._update_states(reachable)
 
     @staticmethod
-    def _to_regex(dfa, indices_to_syms):
-        start, accept = len(dfa._trans_matrix), len(dfa._trans_matrix) + 1
+    def _to_regex(auto, indices_to_syms):
+        start, accept = len(auto._trans_matrix), len(auto._trans_matrix) + 1
         reverse_edges = [set() for i in range(accept)]
         reverse_edges[0].add(start)
-        reverse_edges.append(dfa._accepting)
+        reverse_edges.append(auto._accepting)
         gnfa_func = []
-        for i in range(len(dfa._trans_matrix)):
+        for i in range(len(auto._trans_matrix)):
             to_dict = {}
-            for j in range(len(dfa._trans_matrix[i])):
-                to = dfa._trans_matrix[i][j]
+            for j in range(len(auto._trans_matrix[i])):
+                to = auto._trans_matrix[i][j]
                 regex = to_dict.setdefault(to, _BasicRegex.empty_language())
-                regex.union(_BasicRegex(dfa._indices_to_syms[j]))
-            if i in dfa._accepting:
+                regex.union(_BasicRegex(auto._indices_to_syms[j]))
+            if i in auto._accepting:
                 to_dict[accept] = _BasicRegex.empty_string()
             gnfa_func.append(to_dict)
-        gnfa_func.extend([{dfa._initial: _BasicRegex.empty_string()}, {}])
-        for i in range(len(dfa._trans_matrix)):
+        gnfa_func.extend([{auto._initial: _BasicRegex.empty_string()}, {}])
+        for i in range(len(auto._trans_matrix)):
             # TODO
             pass
 
