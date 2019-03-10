@@ -3,6 +3,7 @@
 from itertools import count
 from collections import deque
 from enum import IntEnum
+from copy import copy
 
 class _Operation(IntEnum):
     """Regex operations ordered by precedence, from highest to lowest."""
@@ -127,21 +128,33 @@ class DFA:
         start, accept = len(auto._trans_matrix), len(auto._trans_matrix) + 1
         reverse_edges = [set() for i in range(accept)]
         reverse_edges[0].add(start)
-        reverse_edges.append(auto._accepting)
+        reverse_edges.append(auto._accepting.copy())
         gnfa_func = []
         for i in range(len(auto._trans_matrix)):
             to_dict = {}
             for j in range(len(auto._trans_matrix[i])):
                 to = auto._trans_matrix[i][j]
+                reverse_edges[to].add(i)
                 regex = to_dict.setdefault(to, _BasicRegex.empty_language())
-                regex.union(_BasicRegex(auto._indices_to_syms[j]))
+                regex.union(_BasicRegex(indices_to_syms[j]))
             if i in auto._accepting:
                 to_dict[accept] = _BasicRegex.empty_string()
             gnfa_func.append(to_dict)
         gnfa_func.extend([{auto._initial: _BasicRegex.empty_string()}, {}])
-        for i in range(len(auto._trans_matrix)):
-            # TODO
-            pass
+        for rip in range(len(auto._trans_matrix)):
+            b = gnfa_func[rip].pop(rip, _BasicRegex.empty_language()).star()
+            reverse_edges[rip].discard(rip)
+            for i in reverse_edges[rip]:
+                a = gnfa_func[i].pop(rip)
+                for j in gnfa_func[rip]:
+                    r = copy(a).concat(b).concat(gnfa_func[rip][j])
+                    if j in gnfa_func[i]:
+                        gnfa_func[i][j].union(r)
+                    else:
+                        gnfa_func[i][j] = r
+                        reverse_edges[j].add(i)
+                    reverse_edges[j].discard(rip)
+        return str(gnfa_func[start].get(accept, _BasicRegex.empty_language()))
 
     def __init__(self, states, alphabet, transitions, initial, accepting,
                  optimize=True):
