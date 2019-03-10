@@ -13,6 +13,13 @@ class _Operation(IntEnum):
     UNION = 3
 
 class _BasicRegex:
+    """Wraps a single character, from which a properly formatted regex
+    can be constructed using the standard operations: Kleene star,
+    concatenation, and union.
+
+    Regexes representing the empty string and empty language can (and
+    should) be obtained via the corresponding class methods.
+    """
 
     EMPTY_LANGUAGE = '{}'
     EMPTY_STRING = "''"
@@ -34,6 +41,9 @@ class _BasicRegex:
 
     def __init__(self, symbol):
         self._string = symbol
+        # operation with the lowest precedence to have been applied to a
+        # regex, used to determine whether it should be parenthesized
+        # when another operation is applied to it
         self._loosest_binding = _Operation.NO_OP
 
     def star(self):
@@ -47,9 +57,11 @@ class _BasicRegex:
 
     def concat(self, other):
         if other._string == __class__.EMPTY_LANGUAGE:
+            # `other` annihilates `self`
             self._string = __class__.EMPTY_LANGUAGE
             self._loosest_binding = _Operation.NO_OP
         elif self._string == __class__.EMPTY_STRING:
+            # `other` copied to `self`
             self._string = other._string
             self._loosest_binding = other._loosest_binding
         elif (self._string != __class__.EMPTY_LANGUAGE and
@@ -62,6 +74,7 @@ class _BasicRegex:
         
     def union(self, other):
         if self._string == __class__.EMPTY_LANGUAGE:
+            # `other` copied to `self`
             self._string = other._string
             self._loosest_binding = other._loosest_binding
         elif other._string != __class__.EMPTY_LANGUAGE:
@@ -112,7 +125,7 @@ class DFA:
 
     @staticmethod
     def _remove_unreachables(auto):
-        #simply traverses the state graph
+        # simply traverses the state graph
         reachable = set()
         queue = deque([auto._initial])
         while queue:
@@ -141,6 +154,13 @@ class DFA:
                 to_dict[accept] = _BasicRegex.empty_string()
             gnfa_func.append(to_dict)
         gnfa_func.extend([{auto._initial: _BasicRegex.empty_string()}, {}])
+        # The regexes corresponding to the transitions of the GNFA are
+        # iteratively merged as states are removed.
+        #
+        # Let f(a, b) be the regex corresponding to the transition
+        # between states a and b. If the state rip is being removed, i
+        # leads to rip, and rip leads to j,
+        # f(i, j) := f(i, rip)f(rip, rip)*f(rip, j) | f(i, j)
         for rip in range(len(auto._trans_matrix)):
             b = gnfa_func[rip].pop(rip, _BasicRegex.empty_language()).star()
             reverse_edges[rip].discard(rip)
