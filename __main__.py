@@ -21,7 +21,7 @@ def main():
     print("Equivalent regex:", auto)
     print("Enter strings to test for acceptance by the DFA, one per line.")
     for line in map(str.rstrip, sys.stdin):
-        print("accepted" if auto(line) else "rejected")
+        print("accepted" if auto(line) else "rejected", end="\n\n")
 
 if __name__ == "__main__":
     main()
