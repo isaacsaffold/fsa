@@ -96,7 +96,8 @@ class NotInAlphabetError(ValueError):
     `char` - the character in question
     
     `msg` (optional) - message to display when the exception is raised.
-    If omitted, a suitable default message is displayed.
+    If omitted, a suitable default message is displayed. The displayed
+    message can subsequently be accessed via `exc.args[0]`.
     """
 
     def __init__(self, char, msg=''):
