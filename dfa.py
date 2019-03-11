@@ -87,6 +87,24 @@ class _BasicRegex:
     def __repr__(self):
         return self._string
 
+class NotInAlphabetError(ValueError):
+    """String passed to DFA contains a character not contained in the
+    DFA's alphabet.
+
+    constructor arguments
+    ---------------------
+    `char` - the character in question
+    
+    `msg` (optional) - message to display when the exception is raised.
+    If omitted, a suitable default message is displayed.
+    """
+
+    def __init__(self, char, msg=''):
+        if not msg:
+            msg = f"'{char}' is not contained in this DFA's alphabet."
+        super().__init__(msg)
+        self.char = char
+
 class DFA:
     """A deterministic finite automaton. Given a string as input,
     determines whether the string belongs to the language corresponding
@@ -228,8 +246,7 @@ class DFA:
             for sym in s:
                 state = self._trans_matrix[state][self._syms_to_indices[sym]]
         except KeyError:
-            msg = f"'{sym}' is not contained in this DFA's alphabet."
-            raise ValueError(msg) from None
+            raise NotInAlphabetError(sym) from None
         return state in self._accepting
 
     def __repr__(self):

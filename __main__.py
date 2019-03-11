@@ -1,6 +1,6 @@
 import sys
 
-from dfa import DFA
+from dfa import DFA, NotInAlphabetError
 
 def read_dfa(filename):
     with open(filename) as file:
@@ -21,7 +21,10 @@ def main():
     print("Equivalent regex:", auto)
     print("Enter strings to test for acceptance by the DFA, one per line.")
     for line in map(str.rstrip, sys.stdin):
-        print("accepted" if auto(line) else "rejected", end="\n\n")
+        try:
+            print("accepted" if auto(line) else "rejected", end="\n\n")
+        except NotInAlphabetError as exc:
+            print(exc.args[0] + '\n')
 
 if __name__ == "__main__":
     main()
