@@ -19,7 +19,7 @@ def read_dfa(filename):
 def main():
     auto = read_dfa(sys.argv[1])
     print("Equivalent regex:", auto)
-    print("Enter strings to test whether they are accepted by the DFA.")
+    print("Enter strings to test for acceptance by the DFA, one per line.")
     for line in map(str.rstrip, sys.stdin):
         print("accepted" if auto(line) else "rejected")
 
