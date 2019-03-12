@@ -159,7 +159,7 @@ class DFA:
     def _to_regex(auto, indices_to_syms):
         start, accept = len(auto._trans_matrix), len(auto._trans_matrix) + 1
         reverse_edges = [set() for i in range(accept)]
-        reverse_edges[0].add(start)
+        reverse_edges[auto._initial].add(start)
         reverse_edges.append(auto._accepting.copy())
         gnfa_func = []
         for i in range(len(auto._trans_matrix)):
@@ -223,16 +223,21 @@ class DFA:
 
     def _update_states(self, new_states):
         """Reconfigures the DFA when its set of states is altered."""
+        index_mapping = {state: i for i, state in enumerate(new_states)}
         new_matrix = []
         new_accepting = set()
-        for i in new_states:
-            if i == self._initial:
+        # `new_states` is not referenced after first iteration, as it
+        # may be lazily evaluated.
+        for state in index_mapping:
+            if state == self._initial:
                 self._initial = len(new_matrix)
-            if i in self._accepting:
+            if state in self._accepting:
                 new_accepting.add(len(new_matrix))
-            new_matrix.append(self._trans_matrix[i])
+            trans = [index_mapping[dest] for dest in self._trans_matrix[state]]
+            new_matrix.append(trans)
         self._trans_matrix = new_matrix
         self._accepting = new_accepting
+        
                 
     @property
     def alphabet(self):
