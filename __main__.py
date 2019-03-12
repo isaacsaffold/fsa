@@ -26,5 +26,4 @@ def main():
         except NotInAlphabetError as exc:
             print(exc.args[0] + '\n')
 
-if __name__ == "__main__":
-    main()
+main()
