@@ -1,6 +1,6 @@
 import sys
 
-from dfa import DFA, NotInAlphabetError
+from fsa.dfa import DFA, NotInAlphabetError
 
 def read_dfa(filename):
     with open(filename) as file:
