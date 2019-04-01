@@ -120,10 +120,6 @@ class DFA:
     which the DFA's language is defined. Each symbol must be a single
     character.
 
-    In the common case that every symbol in the alphabet can be
-    represented by a single character, a string containing each of these
-    characters can be passed to `alphabet`.
-
     `transitions` - an iterable of iterables, each of the form
     (current_state, current_symbol, next_state). current_state and
     next_state must be elements of `states`, and current_symbol must be
