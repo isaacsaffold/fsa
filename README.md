@@ -18,10 +18,10 @@ In addition, note the following:
 
 ## Regex Syntax
 (excluding surrounding quotes)
-Union: '|'
-Kleene star: '\*'
-Empty string: ''''
-Empty language: '{}'
+* Union: '|'
+* Kleene star: '\*'
+* Empty string: ''''
+* Empty language: '{}'
 
 ## How to Run
 To run the program, execute a command of this form in the shell:
