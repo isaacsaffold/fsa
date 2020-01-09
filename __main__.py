@@ -1,6 +1,6 @@
 import sys
 
-from fsa.dfa import DFA, NotInAlphabetError
+from dfa import DFA, NotInAlphabetError
 
 def read_dfa(filename):
     with open(filename) as file:
@@ -15,7 +15,7 @@ def read_dfa(filename):
         line = file.readline().rstrip()
         accepting = line.split(',') if line else []
     return DFA(states, alphabet, transitions, initial, accepting)
-    
+
 def main():
     auto = read_dfa(sys.argv[1])
     print("Equivalent regex:", auto)
