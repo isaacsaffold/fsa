@@ -26,10 +26,11 @@ In addition, note the following:
 ## How to Run
 To run the program, execute a command of this form in the shell:
 
-	<python_exec> <path>/fsa <dfa_file>
+	<python_exec> <path>/fsa [dfa_file]
 
+If `[dfa_file]` is not provided, standard input is used instead.
 `<python_exec>`, by default, is `python` on Windows and `python3` on \*nix.
-Both `<path>` and `<dfa_file>` are relative to the working directory.
+Both `<path>` and `[dfa_file]` are relative to the working directory.
 
 An equivalent regex will then be displayed. After this, the user may enter any number of strings, one per line. For each string entered, if it is accepted by the DFA, "accepted" is printed. Otherwise, "rejected" is printed. The program can be halted by entering an EOF character (CTRL-Z for Windows, CTRL-D for \*nix).
 
