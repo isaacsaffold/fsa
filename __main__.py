@@ -2,7 +2,7 @@
 
 import sys
 
-from dfa import DFA, NotInAlphabetError
+from fsa.dfa import DFA, NotInAlphabetError
 
 def read_dfa(file):
     states = file.readline().rstrip().split(',')
